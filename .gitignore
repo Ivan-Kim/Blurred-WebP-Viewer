@@ -2,3 +2,5 @@
 emsdk/
 libwebp/
 image.jpg
+*.js
+*.wasm

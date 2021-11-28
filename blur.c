@@ -20,14 +20,9 @@ void destroy_buffer(uint8_t *p)
     free(p);
 }
 
-int result[2];
 EMSCRIPTEN_KEEPALIVE
-void encode(uint8_t *img_in, int width, int height, float distance)
+void blur(uint8_t *img_in, int width, int height, float distance)
 {
-    uint8_t *img_out;
-    size_t size;
-
-    // blur
     for (int row = 0; row < height; row++)
     {
         for (int col = 0; col < width; col++)
@@ -64,8 +59,18 @@ void encode(uint8_t *img_in, int width, int height, float distance)
             img_in[new_pixel + 2] = new_blue;
         }
     }
+}
 
-    size = WebPEncodeRGBA(img_in, width, height, width * 4, 100, &img_out);
+int result[2];
+EMSCRIPTEN_KEEPALIVE
+void encode(uint8_t *img_in, int width, int height, float quality)
+{
+    uint8_t *img_out;
+    size_t size;
+
+    blur(img_in, width, height, 10);
+
+    size = WebPEncodeRGBA(img_in, width, height, width * 4, quality, &img_out);
 
     result[0] = (int)img_out;
     result[1] = size;
