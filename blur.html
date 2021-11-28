@@ -81,11 +81,11 @@ limitations under the License.
       const image = await loadImage('./image.jpg');
       const p = api.create_buffer(image.width, image.height);
       Module.HEAP8.set(image.data, p);
-      api.encode(p, image.width, image.height, 30);
+      const blurredP = api.blur(p, image.width, image.height, 42);
+      api.encode(blurredP, image.width, image.height, 100);
       const resultPointer = api.get_result_pointer();
       const resultSize = api.get_result_size();
       const resultView = new Uint8Array(Module.HEAP8.buffer, resultPointer, resultSize);
-      console.log(resultView.slice(0,50))
       const result = new Uint8Array(resultView);
       api.free_result(resultPointer);
       api.destroy_buffer(p);
