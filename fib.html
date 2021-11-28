@@ -1,0 +1,91 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <h1>Writing WebAssembly by Hand: Fibonnaci number demo </h1>
+    <h2>YSC4230: PLDI</h2>
+    <h3>Woonha Kim</h3>
+      <label for="n">Which fib number?</label>
+      <input type = "number" id = "n" value = "0" min = "0" max = "59"/>
+      <button onclick="fib()">Enter</button>
+      <div id="output"></div>
+    <p>
+      Below is my .wam text format WebAssembly code that returns the nth fibonnaci number.
+      <pre>
+        (func (export "fibonacci_nth") (param $n i32) (result i32)
+          ;; placeholder local variables (Effectively assembly registers)
+          (local $i i32) ;; counter
+          (local $t i32) ;; tmp
+          (local $a i32) ;; prev fib1
+          (local $b i32) ;; prev fib2
+
+          ;; base case (n <= 0)
+          (if (i32.le_u (get_local $n) (i32.const 0)) (return (i32.const 0)))
+
+          (set_local $i (i32.const 1))
+          (set_local $t (i32.const 0))
+          ;; Base case fib0 and fib1
+          (set_local $a (i32.const 0))
+          (set_local $b (i32.const 1))
+
+          ;; while loop
+          (block 
+              (loop 
+                  (set_local $t (i32.add (get_local $a) (get_local $b))) ;; tmp = a + b
+                  (set_local $a (get_local $b)) ;; a = b
+                  (set_local $b (get_local $t)) ;; b = tmp
+                  (set_local $i (i32.add (get_local $i) (i32.const 1))) ;; counter increment
+
+                  ;; check terminating condition (i >= n)
+                  (br_if 1 (i32.ge_u (get_local $i) (get_local $n)))
+                  (br 0)
+              )
+          )
+
+          ;; push result to stack
+          get_local $b
+      )
+      </pre>
+    </p>
+    <script>
+      var assemblyFib;
+
+      function fib() {
+        // let loop = [0, 1];
+        // let number=document.getElementById('txtloop').value;
+        // for (let i = 2; i < number; i++)
+        // loop[i] = loop[i-1]+ loop[i-2];
+        //   document.getElementById('output').innerHTML=loop[number-1];
+        // create a new div element
+        const newDiv = document.createElement("div");
+
+        const n = document.getElementById("n").value
+        const res = assemblyFib(n)
+
+        // and give it some content
+        document.getElementById("output").innerHTML = `${n}th fibonnaci number = ` + res
+        // const newContent = document.createTextNode(`${n}th fibonnaci number = ${res}`);
+
+        // // add the text node to the newly created div
+        // newDiv.appendChild(newContent);
+
+        // // add the newly created element and its content into the DOM
+        // const currentDiv = document.getElementById("output");
+        // document.body.insertBefore(newDiv, currentDiv);
+      }
+      // load webassembly method
+      (async function() {
+        const imports = {
+          env: {
+            memory: new WebAssembly.Memory({initial: 1}),
+            STACKTOP: 0,
+          }
+        };
+        const {instance} = await WebAssembly.instantiateStreaming(fetch('fib.wasm'), imports);
+        assemblyFib = instance.exports.fibonacci_nth
+      })();
+    </script>
+  </body>
+</html>
+
