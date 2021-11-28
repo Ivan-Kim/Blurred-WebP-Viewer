@@ -21,7 +21,7 @@ limitations under the License.
   </head>
 
   <body>
-    <h1>Web Assembly: Porting C library demo </h1>
+    <h1>WebAssembly: Porting C library demo </h1>
     <h2>YSC4230 Programming Language Design and Implementation: Final Reading Project</h2>
     <h3>Woonha Kim</h3>
 
@@ -34,13 +34,13 @@ limitations under the License.
       and 
       <a href="https://developers.google.com/web/updates/2018/03/emscripting-a-c-library#get_an_image_from_javascript_into_wasm" target="_blank">
         Emscripting a C library to Wasm.</a>
-      Applies a blur filter to input image.
+      Applies a blur filter to an image converted to WebP format.
     </p>
     <label for="n">Enter blur factor (0-50) </label>
     <input type = "number" id = "n" value = "0" min = "0" max = "50"/>
     <button onclick="myblur()">Blur</button>
     <br>
-    <img id="input_image" src="image.jpg" alt="image">
+    <img id="input_image" src="cat.jpeg" alt="image">
     <!-- <div class="output">
         <pre id="log"></pre>
     </div> -->
@@ -59,7 +59,7 @@ limitations under the License.
           return ctx.getImageData(0, 0, img.width, img.height);
         }
         async function myblur() {
-          image = await loadImage('./image.jpg');
+          image = await loadImage('./cat.jpeg');
           p = api.create_buffer(image.width, image.height);
           Module.HEAP8.set(image.data, p);
           const n = document.getElementById("n").value
@@ -74,8 +74,6 @@ limitations under the License.
 
           const blob = new Blob([result], {type: 'image/webp'});
           const blobURL = URL.createObjectURL(blob);
-          // const img = document.createElement('img');
-          // img.src = blobURL;
           document.getElementById("input_image").src = blobURL
         }
     </script>
@@ -96,7 +94,6 @@ limitations under the License.
         get_result_size: Module.cwrap('get_result_size', 'number', []),
         blur: Module.cwrap('blur', 'number', ['number', 'number', 'number', 'number'])
       };
-      // myblur()
     };
     </script>
     <!-- // [END code-block] -->
